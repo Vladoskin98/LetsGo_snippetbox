@@ -10,7 +10,6 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "Go")
 
 	snippets, err := app.snippets.Latest()
 	if err != nil {
@@ -26,7 +25,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	// Pass the data to the render() helper as normal.
 	app.render(w, r, http.StatusOK, "home.tmpl", data)
-
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -74,4 +72,25 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 
 	//Redirect the user to the relevant page for the snippet.
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a deferred function (which will always be run in the event
+		// of a panic as Go unwinds the stack).
+		defer func() {
+			// Use the builtin recover function to check if there has been a
+			// panic or not. If there has...
+			if err := recover(); err != nil {
+				// Set a "Connection: close" header on the response.
+				w.Header().Set("Connection", "close")
+				// Call the app.serverError helper method to return a 500
+				// Internal Server response.
+				app.serverError(w, r, fmt.Errorf("%s", err))
+			}
+		}()
+
+		next.ServeHTTP(w, r)
+	})
+
 }
