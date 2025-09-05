@@ -20,6 +20,7 @@ import (
 
 // Add a new users field to the application struct.
 type application struct {
+	debug          bool // Add a new debug field.
 	logger         *slog.Logger
 	snippets       models.SnippetModelInterface // Use new interface type
 	users          models.UserModelInterface    // Use new interface type
@@ -30,8 +31,10 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	//Define a new command-line flag for the MySQL DSN string.
+	// Define a new command-line flag for the MySQL DSN string.
 	dsn := flag.String("dsn", "web:admin@/snippetbox?parseTime=true", "MySQL data source name")
+	// Create a new debug flag with the default value of false.
+	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -68,6 +71,7 @@ func main() {
 	// Initialize a models.UserModel instance and add it to the application
 	// dependencies.
 	app := &application{
+		debug:          *debug,
 		logger:         logger,
 		snippets:       &models.SnippetModel{DB: db},
 		users:          &models.UserModel{DB: db},
