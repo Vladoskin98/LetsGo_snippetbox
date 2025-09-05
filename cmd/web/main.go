@@ -21,8 +21,8 @@ import (
 // Add a new users field to the application struct.
 type application struct {
 	logger         *slog.Logger
-	snippets       *models.SnippetModel
-	users          *models.UserModel
+	snippets       models.SnippetModelInterface // Use new interface type
+	users          models.UserModelInterface    // Use new interface type
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
