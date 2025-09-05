@@ -3,6 +3,8 @@
     <div>
         <a href='/'>Home</a>
         <!-- Toggle the link based on authentication status -->
+        <!-- Include a new link, visible to all users -->
+        <a href='/about'>About</a>
         {{if .IsAuthenticated}}
             <a href='/snippet/create'>Create snippet</a>
         {{end}}
